@@ -4,6 +4,7 @@
 #include "Components/InputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 // Sets default values
 ATPCharacter::ATPCharacter()
@@ -14,10 +15,11 @@ ATPCharacter::ATPCharacter()
 	SpringArmComponent = CreateAbstractDefaultSubobject<USpringArmComponent>(TEXT("SpringArm Component"));
 	SpringArmComponent->bUsePawnControlRotation = true;
 	SpringArmComponent->SetupAttachment(RootComponent);
+	
+	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
-
 }
 
 // Called when the game starts or when spawned
@@ -37,6 +39,16 @@ void ATPCharacter::MoveRight(float Value)
 	AddMovementInput(GetActorRightVector() * Value);
 }
 
+void ATPCharacter::BeginCrouch()
+{
+	Crouch();
+}
+
+void ATPCharacter::EndCrouch()
+{
+	UnCrouch();
+}
+
 // Called every frame
 void ATPCharacter::Tick(float DeltaTime)
 {
@@ -53,7 +65,12 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("MoveForward", this, &ATPCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ATPCharacter::MoveRight);
 
+	// Player Mouse Input
 	PlayerInputComponent->BindAxis("LookUp", this, &ATPCharacter::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookRight", this, &ATPCharacter::AddControllerYawInput);
+
+	// Player Crouch
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ATPCharacter::BeginCrouch);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ATPCharacter::EndCrouch);
 }
 
