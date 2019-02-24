@@ -7,6 +7,8 @@
 #include "TPSWeapon.generated.h"
 
 class USkeletalMeshComponent;
+class UDamageType;
+class UParticleSystem;
 
 UCLASS()
 class TP_PROJECT_API ATPSWeapon : public AActor
@@ -26,6 +28,25 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Fire();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UDamageType> DamageType;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName MuzzleSocketName;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName TracerTargetName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* MuzzleFlashEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* ImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* ProjectileEffect;
+
 
 public:	
 	// Called every frame
