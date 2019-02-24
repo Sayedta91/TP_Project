@@ -18,8 +18,8 @@ ATPCharacter::ATPCharacter()
 	
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
-	CameraComponent->SetupAttachment(SpringArmComponent);
+	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
+	CameraComp->SetupAttachment(SpringArmComponent);
 }
 
 // Called when the game starts or when spawned
@@ -72,5 +72,15 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	// Player Crouch
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ATPCharacter::BeginCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ATPCharacter::EndCrouch);
+}
+
+FVector ATPCharacter::GetPawnViewLocation() const
+{
+	if (CameraComp)
+	{
+		return CameraComp->GetComponentLocation();
+	}
+
+	return Super::GetPawnViewLocation();
 }
 
