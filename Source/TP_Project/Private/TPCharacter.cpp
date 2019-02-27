@@ -5,6 +5,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "Engine/World.h"
+#include "TPSWeapon.h"
 
 // Sets default values
 ATPCharacter::ATPCharacter()
@@ -20,6 +22,11 @@ ATPCharacter::ATPCharacter()
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
 	CameraComp->SetupAttachment(SpringArmComponent);
+
+	AimingFOV = 65.0f;
+	ZoomInterpSpeed = 20.0f;
+
+	WeaponSocketName = "WeaponSocket";
 }
 
 // Called when the game starts or when spawned
@@ -27,6 +34,17 @@ void ATPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	DefaultFOV = CameraComp->FieldOfView;
+
+	// Spawn Weapon
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	CurrentWeapon = GetWorld()->SpawnActor<ATPSWeapon>(StarterWeapon, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->SetOwner(this);
+		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
+	}
 }
 
 void ATPCharacter::MoveForward(float Value)
@@ -49,11 +67,32 @@ void ATPCharacter::EndCrouch()
 	UnCrouch();
 }
 
+void ATPCharacter::BeginAiming()
+{
+	bIsAiming = true;
+}
+
+void ATPCharacter::StopAiming()
+{
+	bIsAiming = false;
+}
+
+void ATPCharacter::Fire()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Fire();
+	}
+}
+
 // Called every frame
 void ATPCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float TargetFOV = bIsAiming ? AimingFOV : DefaultFOV;
+	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ZoomInterpSpeed);
+	CameraComp->SetFieldOfView(NewFOV);
 }
 
 // Called to bind functionality to input
@@ -72,6 +111,12 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	// Player Crouch
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ATPCharacter::BeginCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ATPCharacter::EndCrouch);
+
+	// Player ADS
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ATPCharacter::BeginAiming);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ATPCharacter::StopAiming);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ATPCharacter::Fire);
 }
 
 FVector ATPCharacter::GetPawnViewLocation() const

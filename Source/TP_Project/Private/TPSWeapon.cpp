@@ -8,23 +8,21 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
+static int32 DebugWeaponDrawing = 0;
+FAutoConsoleVariableRef CVARDebugWeaponDrawing(
+	TEXT("TP.DebugWeapons"), 
+	DebugWeaponDrawing, 
+	TEXT("Draw Debug Lines for Weapons"), 
+	ECVF_Cheat);
+
 // Sets default values
 ATPSWeapon::ATPSWeapon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
 	MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh Component"));
 	RootComponent = MeshComponent;
 
 	MuzzleSocketName = "MuzzleSocket";
 	TracerTargetName = "Target";
-}
-
-// Called when the game starts or when spawned
-void ATPSWeapon::BeginPlay()
-{
-	Super::BeginPlay();
 }
 
 void ATPSWeapon::Fire()
@@ -59,6 +57,7 @@ void ATPSWeapon::Fire()
 			AActor* HitActor = Hit.GetActor();
 			UGameplayStatics::ApplyPointDamage(HitActor, 20.0f, ShotDirection, Hit, MyOwner->GetInstigatorController(), this, DamageType);
 
+			// Projectile Impact Effect
 			if (ImpactEffect)
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
@@ -67,30 +66,35 @@ void ATPSWeapon::Fire()
 			TracerEndPoint = Hit.ImpactPoint;
 		}
 
-		DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, 1.0f, 0, 1.0f);
-		
-		// Muzzle flash effect
-		if (MuzzleFlashEffect) {
-			UGameplayStatics::SpawnEmitterAttached(MuzzleFlashEffect, MeshComponent, MuzzleSocketName);
-		}
-
-		if (ProjectileEffect)
+		// Weapon Debug Line
+		if (DebugWeaponDrawing > 0)
 		{
-			FVector MuzzleSocketLocation = MeshComponent->GetSocketLocation(MuzzleSocketName);
-			UParticleSystemComponent* ProjectileComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ProjectileEffect, MuzzleSocketLocation);
-
-			if (ProjectileComponent) {
-				ProjectileComponent->SetVectorParameter(TracerTargetName, TracerEndPoint);
-			}
-
+			DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, 1.0f, 0, 1.0f);
 		}
+		
+		FireEffects(TracerEndPoint);
+		
 	}
 }
 
-// Called every frame
-void ATPSWeapon::Tick(float DeltaTime)
+void ATPSWeapon::FireEffects(FVector TraceEnd)
 {
-	Super::Tick(DeltaTime);
+	// Muzzle flash effect
+	if (MuzzleFlashEffect) {
+		UGameplayStatics::SpawnEmitterAttached(MuzzleFlashEffect, MeshComponent, MuzzleSocketName);
+	}
 
+	// Projectile Tracer Effect
+	if (ProjectileEffect)
+	{
+		// Get the location of the muzzle socket
+		FVector MuzzleSocketLocation = MeshComponent->GetSocketLocation(MuzzleSocketName);
+		// Spawn the particle tracer effect at the muzzle socket location
+		UParticleSystemComponent* ProjectileComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ProjectileEffect, MuzzleSocketLocation);
+
+		if (ProjectileComponent) {
+			ProjectileComponent->SetVectorParameter(TracerTargetName, TraceEnd);
+		}
+	}
 }
 

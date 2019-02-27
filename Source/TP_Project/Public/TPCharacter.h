@@ -9,6 +9,7 @@
 // Forward Declaring Components
 class UCameraComponent;
 class USpringArmComponent;
+class ATPSWeapon;
 
 UCLASS()
 class TP_PROJECT_API ATPCharacter : public ACharacter
@@ -36,6 +37,31 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player")
+	bool bIsAiming;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
+	float AimingFOV;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.1, ClampMax = 100))
+	float ZoomInterpSpeed;
+
+	float DefaultFOV;
+
+	void BeginAiming();
+
+	void StopAiming();
+
+	ATPSWeapon* CurrentWeapon;
+
+	void Fire();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<ATPSWeapon> StarterWeapon;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
+	FName WeaponSocketName;
 
 public:	
 	// Called every frame
