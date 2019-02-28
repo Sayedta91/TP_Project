@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 #include "TPSWeapon.h"
 
@@ -70,18 +71,28 @@ void ATPCharacter::EndCrouch()
 void ATPCharacter::BeginAiming()
 {
 	bIsAiming = true;
+	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed * 0.5f;
 }
 
 void ATPCharacter::StopAiming()
 {
 	bIsAiming = false;
+	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed / 0.5f;
 }
 
-void ATPCharacter::Fire()
+void ATPCharacter::StartFire()
 {
 	if (CurrentWeapon)
 	{
-		CurrentWeapon->Fire();
+		CurrentWeapon->StartFire();
+	}
+}
+
+void ATPCharacter::StopFire()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->StopFire();
 	}
 }
 
@@ -116,7 +127,9 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ATPCharacter::BeginAiming);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ATPCharacter::StopAiming);
 
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ATPCharacter::Fire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ATPCharacter::StartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ATPCharacter::StopFire);
+
 }
 
 FVector ATPCharacter::GetPawnViewLocation() const

@@ -55,7 +55,9 @@ protected:
 
 	ATPSWeapon* CurrentWeapon;
 
-	void Fire();
+	void StartFire();
+
+	void StopFire();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<ATPSWeapon> StarterWeapon;
