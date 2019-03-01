@@ -7,6 +7,7 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
+#include "Components/CapsuleComponent.h"
 #include "TPSWeapon.h"
 
 // Sets default values
@@ -96,6 +97,7 @@ void ATPCharacter::StopFire()
 	}
 }
 
+
 // Called every frame
 void ATPCharacter::Tick(float DeltaTime)
 {
@@ -123,12 +125,11 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ATPCharacter::BeginCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ATPCharacter::EndCrouch);
 
-	// Player ADS
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ATPCharacter::BeginAiming);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ATPCharacter::StopAiming);
-
+	// Player Weapon Actions
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ATPCharacter::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ATPCharacter::StopFire);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ATPCharacter::BeginAiming);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ATPCharacter::StopAiming);
 
 }
 

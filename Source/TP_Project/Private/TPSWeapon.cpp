@@ -6,8 +6,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "TimerManager.h"
+#include "TP_Project.h"
 
 static int32 DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef CVARDebugWeaponDrawing(
@@ -25,7 +27,12 @@ ATPSWeapon::ATPSWeapon()
 	MuzzleSocketName = "MuzzleSocket";
 	TracerTargetName = "Target";
 
+	BaseDamage = 20.0f;
+
 	RateOfFire = 600;
+	CurrentChamberAmmo = 30;
+	MaxChamberAmmo = 30;
+	TotalAmmo = 120;
 }
 
 void ATPSWeapon::BeginPlay()
@@ -57,22 +64,43 @@ void ATPSWeapon::Fire()
 		QueryParams.AddIgnoredActor(this);
 		// more expensive but gives an exact value of what we hit
 		QueryParams.bTraceComplex = true;
+		QueryParams.bReturnPhysicalMaterial = true;
 
 
 		// Particle "Target" parameter
 		FVector TracerEndPoint = TraceEnd;
 
 		FHitResult Hit;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, ECC_Visibility, QueryParams)) {
+		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams)) {
 			// Blocking hit
 
 			AActor* HitActor = Hit.GetActor();
-			UGameplayStatics::ApplyPointDamage(HitActor, 20.0f, ShotDirection, Hit, MyOwner->GetInstigatorController(), this, DamageType);
+			EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+
+			float ActualDamage = BaseDamage;
+			if (SurfaceType == SURFACE_FLESHVULNERABLE)
+			{
+				ActualDamage *= 4.0f;
+			}
+
+			UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, MyOwner->GetInstigatorController(), this, DamageType);
+
+			UParticleSystem* SelectedEffect = nullptr;
+			switch (SurfaceType)
+			{
+			case SURFACE_FLESHDEFAULT:
+			case SURFACE_FLESHVULNERABLE:
+				SelectedEffect = FleshImpactEffect;
+				break;
+			default:
+				SelectedEffect = DefaultImpactEffect;
+				break;
+			}
 
 			// Projectile Impact Effect
-			if (ImpactEffect)
+			if (SelectedEffect)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DefaultImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 			}
 
 			TracerEndPoint = Hit.ImpactPoint;
@@ -94,7 +122,7 @@ void ATPSWeapon::Fire()
 
 bool ATPSWeapon::CheckAmmo()
 {
-	if (IsReloading)
+	if (bIsReloading)
 	{
 		return false;
 	}
@@ -103,7 +131,7 @@ bool ATPSWeapon::CheckAmmo()
 	{
 		if (CanReloadAmmo())
 		{
-			Reload();
+			ReloadWeapon();
 			return false;
 		}
 		else {
@@ -124,10 +152,10 @@ bool ATPSWeapon::CanReloadAmmo() const
 	return TotalAmmo > 0 && CurrentChamberAmmo < MaxChamberAmmo;
 }
 
-void ATPSWeapon::Reload()
+void ATPSWeapon::ReloadWeapon()
 {
-	if (IsReloading) return;
-	IsReloading = true;
+	if (bIsReloading) return;
+	bIsReloading = true;
 	int32 oldammo = CurrentChamberAmmo;
 	int32 newammo = MaxChamberAmmo - oldammo;
 	CurrentChamberAmmo = TotalAmmo >= newammo ? newammo : TotalAmmo;
@@ -135,7 +163,7 @@ void ATPSWeapon::Reload()
 
 	GetWorldTimerManager().SetTimer(
 		TimerHandle_Reloading, [this]() {
-		IsReloading = false; },
+		bIsReloading = false; },
 		TimeToReload, false, TimeToReload);
 }
 

@@ -59,6 +59,8 @@ protected:
 
 	void StopFire();
 
+	void ReloadWeapon();
+
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<ATPSWeapon> StarterWeapon;
 

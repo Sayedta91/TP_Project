@@ -41,7 +41,10 @@ protected:
 	UParticleSystem* MuzzleFlashEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	UParticleSystem* ImpactEffect;
+	UParticleSystem* DefaultImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* FleshImpactEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	UParticleSystem* ProjectileEffect;
@@ -55,6 +58,9 @@ protected:
 
 	float LastTimeFired;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float BaseDamage;
+
 	/* RPM */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float RateOfFire;
@@ -63,20 +69,20 @@ protected:
 
 	FTimerHandle TimerHandle_Reloading;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (ToolTip = "Number of bullets available to shoot"))
-	int32 TotalAmmo = 90;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	int32 TotalAmmo;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (ToolTip = "Max number of bullets in the chamber"))
-	int32 MaxChamberAmmo = 30;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	int32 MaxChamberAmmo;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (ToolTip = "Current number of bullets in the chamber"))
-	int32 CurrentChamberAmmo = 30;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	int32 CurrentChamberAmmo;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (ToolTip = "Flag to know when the weapon is in reloading time"))
-	bool IsReloading = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	bool bIsReloading = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (ToolTip = "Time in seconds to reload the weapon"))
-	float TimeToReload = 0.9f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	float TimeToReload;
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual bool CheckAmmo();
@@ -87,10 +93,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual bool CanReloadAmmo() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual void Reload();
-
 public:	
+	
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void ReloadWeapon();
 
 	void StartFire();
 
