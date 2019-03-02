@@ -10,6 +10,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class ATPSWeapon;
+class UTPSHealthComponent;
 
 UCLASS()
 class TP_PROJECT_API ATPCharacter : public ACharacter
@@ -38,6 +39,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComponent;
 
+	UTPSHealthComponent* HealthComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player")
 	bool bIsAiming;
 
@@ -59,13 +62,17 @@ protected:
 
 	void StopFire();
 
-	void ReloadWeapon();
-
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<ATPSWeapon> StarterWeapon;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 	FName WeaponSocketName;
+
+	UFUNCTION()
+	void OnHealthChanged(UTPSHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	bool bDied;
 
 public:	
 	// Called every frame

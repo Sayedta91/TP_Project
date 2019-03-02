@@ -8,7 +8,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h"
+#include "TPSHealthComponent.h"
 #include "TPSWeapon.h"
+#include "TP_Project.h"
 
 // Sets default values
 ATPCharacter::ATPCharacter()
@@ -21,6 +23,9 @@ ATPCharacter::ATPCharacter()
 	SpringArmComponent->SetupAttachment(RootComponent);
 	
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
+
+	HealthComponent = CreateDefaultSubobject<UTPSHealthComponent>(TEXT("Health Component"));
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
 	CameraComp->SetupAttachment(SpringArmComponent);
@@ -47,6 +52,8 @@ void ATPCharacter::BeginPlay()
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
 	}
+
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ATPCharacter::OnHealthChanged);
 }
 
 void ATPCharacter::MoveForward(float Value)
@@ -97,6 +104,21 @@ void ATPCharacter::StopFire()
 	}
 }
 
+void ATPCharacter::OnHealthChanged(UTPSHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, 
+	class AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (Health <= 0.0f && !bDied)
+	{
+		// Can die
+		bDied = true;
+		
+		GetMovementComponent()->StopMovementImmediately();
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		DetachFromControllerPendingDestroy();
+		SetLifeSpan(10.0f);
+	}
+}
 
 // Called every frame
 void ATPCharacter::Tick(float DeltaTime)
