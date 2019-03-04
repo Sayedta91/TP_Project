@@ -13,9 +13,9 @@
 
 static int32 DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef CVARDebugWeaponDrawing(
-	TEXT("TP.DebugWeapons"), 
-	DebugWeaponDrawing, 
-	TEXT("Draw Debug Lines for Weapons"), 
+	TEXT("TP.DebugWeapons"),
+	DebugWeaponDrawing,
+	TEXT("Draw Debug Lines for Weapons"),
 	ECVF_Cheat);
 
 // Sets default values
@@ -28,11 +28,7 @@ ATPSWeapon::ATPSWeapon()
 	TracerTargetName = "Target";
 
 	BaseDamage = 20.0f;
-
 	RateOfFire = 600;
-	CurrentChamberAmmo = 30;
-	MaxChamberAmmo = 30;
-	TotalAmmo = 120;
 }
 
 void ATPSWeapon::BeginPlay()
@@ -45,11 +41,9 @@ void ATPSWeapon::Fire()
 {
 	// Trace the world from pawn eyes to location of crosshair (center of screen)
 
-	
 	AActor* MyOwner = GetOwner();
 	if (MyOwner)
 	{
-		if (!CheckAmmo()){return;}
 		FVector EyeLocation;
 		FRotator EyeRotation;
 		// Because theyre being passed as a reference, they will be filled with data from the owning actor
@@ -69,13 +63,13 @@ void ATPSWeapon::Fire()
 
 		// Particle "Target" parameter
 		FVector TracerEndPoint = TraceEnd;
+		EPhysicalSurface SurfaceType = SurfaceType_Default;
 
 		FHitResult Hit;
 		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams)) {
 			// Blocking hit
 
 			AActor* HitActor = Hit.GetActor();
-			EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
 
 			float ActualDamage = BaseDamage;
 			if (SurfaceType == SURFACE_FLESHVULNERABLE)
@@ -84,24 +78,8 @@ void ATPSWeapon::Fire()
 			}
 
 			UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, MyOwner->GetInstigatorController(), this, DamageType);
-
-			UParticleSystem* SelectedEffect = nullptr;
-			switch (SurfaceType)
-			{
-			case SURFACE_FLESHDEFAULT:
-			case SURFACE_FLESHVULNERABLE:
-				SelectedEffect = FleshImpactEffect;
-				break;
-			default:
-				SelectedEffect = DefaultImpactEffect;
-				break;
-			}
-
-			// Projectile Impact Effect
-			if (SelectedEffect)
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DefaultImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
-			}
+			
+			PlayImpactEffects(SurfaceType, Hit.ImpactPoint);
 
 			TracerEndPoint = Hit.ImpactPoint;
 		}
@@ -111,60 +89,11 @@ void ATPSWeapon::Fire()
 		{
 			DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, 1.0f, 0, 1.0f);
 		}
-		
+
 		FireEffects(TracerEndPoint);
-		
+
 		LastTimeFired = GetWorld()->TimeSeconds;
-		CurrentChamberAmmo--;
-		UE_LOG(LogTemp, Warning, TEXT("Current Ammo: %d"), CurrentChamberAmmo);
 	}
-}
-
-bool ATPSWeapon::CheckAmmo()
-{
-	if (bIsReloading)
-	{
-		return false;
-	}
-
-	if (!HasAmmo())
-	{
-		if (CanReloadAmmo())
-		{
-			ReloadWeapon();
-			return false;
-		}
-		else {
-			StopFire();
-			return false;
-		}
-	}
-	return true;
-}
-
-bool ATPSWeapon::HasAmmo() const
-{
-	return CurrentChamberAmmo > 0 && TotalAmmo > 0;
-}
-
-bool ATPSWeapon::CanReloadAmmo() const
-{
-	return TotalAmmo > 0 && CurrentChamberAmmo < MaxChamberAmmo;
-}
-
-void ATPSWeapon::ReloadWeapon()
-{
-	if (bIsReloading) return;
-	bIsReloading = true;
-	int32 oldammo = CurrentChamberAmmo;
-	int32 newammo = MaxChamberAmmo - oldammo;
-	CurrentChamberAmmo = TotalAmmo >= newammo ? newammo : TotalAmmo;
-	TotalAmmo -= newammo;
-
-	GetWorldTimerManager().SetTimer(
-		TimerHandle_Reloading, [this]() {
-		bIsReloading = false; },
-		TimeToReload, false, TimeToReload);
 }
 
 void ATPSWeapon::StartFire()
@@ -182,6 +111,8 @@ void ATPSWeapon::FireEffects(FVector TraceEnd)
 {
 	// Muzzle flash effect
 	if (MuzzleFlashEffect) {
+		FVector MuzzleSocketLocation = MeshComponent->GetSocketLocation(MuzzleSocketName);
+
 		UGameplayStatics::SpawnEmitterAttached(MuzzleFlashEffect, MeshComponent, MuzzleSocketName);
 	}
 
@@ -208,4 +139,31 @@ void ATPSWeapon::FireEffects(FVector TraceEnd)
 		}
 	}
 }
+
+void ATPSWeapon::PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint)
+{
+	UParticleSystem* SelectedEffect = nullptr;
+	switch (SurfaceType)
+	{
+	case SURFACE_FLESHDEFAULT:
+	case SURFACE_FLESHVULNERABLE:
+		SelectedEffect = FleshImpactEffect;
+		break;
+	default:
+		SelectedEffect = DefaultImpactEffect;
+		break;
+	}
+
+	// Projectile Impact Effect
+	if (SelectedEffect)
+	{
+		FVector MuzzleLocation = MeshComponent->GetSocketLocation(MuzzleSocketName);
+
+		FVector ShotDirection = ImpactPoint - MuzzleLocation;
+		ShotDirection.Normalize();
+
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
+	}
+}
+
 

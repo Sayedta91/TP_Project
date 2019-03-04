@@ -9,6 +9,7 @@
 class USkeletalMeshComponent;
 class UDamageType;
 class UParticleSystem;
+class UCameraShake;
 
 UCLASS()
 class TP_PROJECT_API ATPSWeapon : public AActor
@@ -27,6 +28,8 @@ protected:
 	USkeletalMeshComponent* MeshComponent;
 
 	void FireEffects(FVector TraceEnd);
+
+	 void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
@@ -69,34 +72,7 @@ protected:
 
 	FTimerHandle TimerHandle_Reloading;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	int32 TotalAmmo;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	int32 MaxChamberAmmo;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	int32 CurrentChamberAmmo;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
-	bool bIsReloading = false;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	float TimeToReload;
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	virtual bool CheckAmmo();
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	virtual bool HasAmmo() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	virtual bool CanReloadAmmo() const;
-
 public:	
-	
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual void ReloadWeapon();
 
 	void StartFire();
 
