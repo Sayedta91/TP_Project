@@ -57,7 +57,8 @@ protected:
 
 	void StopAiming();
 
-	ATPSWeapon* CurrentWeapon;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Player")
+	ATPSWeapon* EquippedWeapon;
 
 	void StartFire();
 

@@ -46,12 +46,12 @@ void ATPCharacter::BeginPlay()
 	// Spawn Weapon
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	CurrentWeapon = GetWorld()->SpawnActor<ATPSWeapon>(StarterWeapon, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+	EquippedWeapon = GetWorld()->SpawnActor<ATPSWeapon>(StarterWeapon, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
 
-	if (CurrentWeapon)
+	if (EquippedWeapon)
 	{
-		CurrentWeapon->SetOwner(this);
-		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
+		EquippedWeapon->SetOwner(this);
+		EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
 	}
 	
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ATPCharacter::OnHealthChanged);
@@ -92,17 +92,17 @@ void ATPCharacter::StopAiming()
 
 void ATPCharacter::StartFire()
 {
-	if (CurrentWeapon)
+	if (EquippedWeapon)
 	{
-		CurrentWeapon->StartFire();
+		EquippedWeapon->StartFire();
 	}
 }
 
 void ATPCharacter::StopFire()
 {
-	if (CurrentWeapon)
+	if (EquippedWeapon)
 	{
-		CurrentWeapon->StopFire();
+		EquippedWeapon->StopFire();
 	}
 }
 

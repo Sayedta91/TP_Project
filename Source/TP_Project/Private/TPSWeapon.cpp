@@ -39,6 +39,9 @@ void ATPSWeapon::BeginPlay()
 
 void ATPSWeapon::Fire()
 {
+
+	if (!CheckAmmo()) return;
+
 	// Trace the world from pawn eyes to location of crosshair (center of screen)
 
 	AActor* MyOwner = GetOwner();
@@ -93,7 +96,51 @@ void ATPSWeapon::Fire()
 		FireEffects(TracerEndPoint);
 
 		LastTimeFired = GetWorld()->TimeSeconds;
+
+		CurrentChamberAmmo--;
 	}
+}
+
+bool ATPSWeapon::CheckAmmo()
+{
+	if (bIsReloading) return false;
+	if (!HasAmmo())
+	{
+		if (CanReloadAmmo())
+		{
+			Reload();
+			return false;
+		}
+		else
+		{
+			//No ammo
+			StopFire();
+			return false;
+		}
+	}
+	return true;
+}
+
+bool ATPSWeapon::HasAmmo() const
+{
+	return CurrentChamberAmmo > 0 && TotalAmmo > 0;
+}
+
+bool ATPSWeapon::CanReloadAmmo() const
+{
+	return TotalAmmo > 0 && CurrentChamberAmmo < MaxChamberAmmo;
+}
+
+void ATPSWeapon::Reload()
+{
+	if (bIsReloading) return;
+	bIsReloading = true;
+	int32 oldammo = CurrentChamberAmmo;
+	int32 newammo = MaxChamberAmmo - oldammo;
+	CurrentChamberAmmo = TotalAmmo >= newammo ? newammo : TotalAmmo;
+	TotalAmmo -= newammo;
+
+	GetWorldTimerManager().SetTimer(TH_Reloading, [this]() {bIsReloading = false; }, TimeToReload, false, TimeToReload);
 }
 
 void ATPSWeapon::StartFire()

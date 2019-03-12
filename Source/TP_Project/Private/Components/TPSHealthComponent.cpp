@@ -37,4 +37,15 @@ void UTPSHealthComponent::HandleDamage(AActor * DamagedActor, float Damage, cons
 	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
 }
 
+void UTPSHealthComponent::Heal(float Amount)
+{
+	if (Amount <= 0.0f || Health <= 0.0f){ return; }
+
+	Health = FMath::Clamp(Health + Amount, 0.0f, DefaultHealth);
+
+	OnHealthChanged.Broadcast(this, Health, -Amount, nullptr, nullptr, nullptr);
+
+
+}
+
 
