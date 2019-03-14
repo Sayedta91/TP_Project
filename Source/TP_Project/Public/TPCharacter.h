@@ -42,7 +42,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UTPSHealthComponent* HealthComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player")
 	bool bIsAiming;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
@@ -59,10 +59,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Player")
 	ATPSWeapon* EquippedWeapon;
-
-	void StartFire();
-
-	void StopFire();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<ATPSWeapon> StarterWeapon;
@@ -85,4 +81,9 @@ public:
 
 	virtual FVector GetPawnViewLocation() const override;
 
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StartFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StopFire();
 };

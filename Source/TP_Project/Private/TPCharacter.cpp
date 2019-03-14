@@ -119,6 +119,8 @@ void ATPCharacter::OnHealthChanged(UTPSHealthComponent* OwningHealthComp, float 
 
 		DetachFromControllerPendingDestroy();
 		SetLifeSpan(10.0f);
+
+		EquippedWeapon->StopFire();
 	}
 }
 
