@@ -45,6 +45,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player")
 	bool bIsAiming;
 
+	void BeginAiming();
+
+	void StopAiming();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player")
+	bool bIsSprinting;
+
+	void BeginSprinting();
+
+	void StopSprinting();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
 	float AimingFOV;
 
@@ -52,10 +63,6 @@ protected:
 	float ZoomInterpSpeed;
 
 	float DefaultFOV;
-
-	void BeginAiming();
-
-	void StopAiming();
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Player")
 	ATPSWeapon* EquippedWeapon;

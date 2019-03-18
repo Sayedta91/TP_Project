@@ -90,6 +90,18 @@ void ATPCharacter::StopAiming()
 	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed / 0.5f;
 }
 
+void ATPCharacter::BeginSprinting()
+{
+	bIsSprinting = true;
+	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed * 1.5f;
+}
+
+void ATPCharacter::StopSprinting()
+{
+	bIsSprinting = false;
+	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed / 1.5f;
+}
+
 void ATPCharacter::StartFire()
 {
 	if (EquippedWeapon)
@@ -150,6 +162,13 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	// Player Crouch
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ATPCharacter::BeginCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ATPCharacter::EndCrouch);
+
+	// Player Sprint
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ATPCharacter::BeginSprinting);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ATPCharacter::StopSprinting);
+
+	// Player Jump
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATPCharacter::Jump);
 
 	// Player Weapon Actions
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ATPCharacter::StartFire);
