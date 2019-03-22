@@ -76,15 +76,6 @@ protected:
 
 	FTimerHandle TH_Reloading;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	int32 TotalAmmo;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	int32 MaxChamberAmmo;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	int32 CurrentChamberAmmo;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	bool bIsReloading;
 
@@ -97,18 +88,8 @@ protected:
 public:	
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	virtual bool CheckAmmo();
-
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual bool HasAmmo() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual bool CanReloadAmmo() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual void Reload();
-
 	void StartFire();
-
+		
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void StopFire();
 };

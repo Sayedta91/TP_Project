@@ -21,13 +21,13 @@ void UTPSHealthComponent::BeginPlay()
 	AActor* MyOwner = GetOwner();
 	if (MyOwner)
 	{
-		MyOwner->OnTakeAnyDamage.AddDynamic(this, &UTPSHealthComponent::HandleDamage);
+		MyOwner->OnTakeAnyDamage.AddDynamic(this, &UTPSHealthComponent::HandleTakeAnyDamage);
 	}
 
-	 Health = DefaultHealth;
+	Health = DefaultHealth;
 }
 
-void UTPSHealthComponent::HandleDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
+void UTPSHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {
 	if (Damage <= 0.0f || bIsDead) { return; }
 	if (DamageCauser != DamagedActor && IsFriendly(DamagedActor, DamageCauser)) { return; }

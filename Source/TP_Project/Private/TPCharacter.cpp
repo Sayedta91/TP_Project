@@ -61,11 +61,18 @@ void ATPCharacter::BeginPlay()
 void ATPCharacter::MoveForward(float Value)
 {
 	AddMovementInput(GetActorForwardVector() * Value);
+	if (Value < 0.5f && bIsSprinting)
+	{
+		bIsSprinting = false;
+	}
 }
 
 void ATPCharacter::MoveRight(float Value)
 {
-	AddMovementInput(GetActorRightVector() * Value);
+	if (!bIsSprinting)
+	{
+		AddMovementInput(GetActorRightVector() * Value);
+	}
 }
 
 void ATPCharacter::BeginCrouch()
@@ -93,13 +100,13 @@ void ATPCharacter::StopAiming()
 void ATPCharacter::BeginSprinting()
 {
 	bIsSprinting = true;
-	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed * 1.5f;
+	GetCharacterMovement()->MaxWalkSpeed = 750.0f;
 }
 
 void ATPCharacter::StopSprinting()
 {
 	bIsSprinting = false;
-	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed / 1.5f;
+	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 }
 
 void ATPCharacter::StartFire()

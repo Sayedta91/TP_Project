@@ -30,6 +30,7 @@ ATPSWeapon::ATPSWeapon()
 	BaseDamage = 20.0f;
 	RateOfFire = 600;
 	BulletSpread = 2.0f;
+
 }
 
 void ATPSWeapon::BeginPlay()
@@ -41,17 +42,15 @@ void ATPSWeapon::BeginPlay()
 void ATPSWeapon::Fire()
 {
 
-	if (!CheckAmmo()) return;
-
 	// Trace the world from pawn eyes to location of crosshair (center of screen)
 
 	AActor* MyOwner = GetOwner();
 	if (MyOwner)
 	{
-		FVector EyeLocation;
+		FVector TraceFrom;
 		FRotator EyeRotation;
 		// Because theyre being passed as a reference, they will be filled with data from the owning actor
-		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+		MyOwner->GetActorEyesViewPoint(TraceFrom, EyeRotation);
 
 		FVector ShotDirection = EyeRotation.Vector();
 
@@ -59,22 +58,22 @@ void ATPSWeapon::Fire()
 		float HalfRad = FMath::DegreesToRadians(BulletSpread);
 		ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
 
-		FVector TraceEnd = EyeLocation + (ShotDirection * 10000);
+		FVector TraceTo = TraceFrom + (ShotDirection * 10000);
 
-		FCollisionQueryParams QueryParams;
+		FCollisionQueryParams TraceParams;
 		// Ignore both the actor and the weapon itself
-		QueryParams.AddIgnoredActor(MyOwner);
-		QueryParams.AddIgnoredActor(this);
+		TraceParams.AddIgnoredActor(MyOwner);
+		TraceParams.AddIgnoredActor(this);
 		// more expensive but gives an exact value of what we hit
-		QueryParams.bTraceComplex = true;
-		QueryParams.bReturnPhysicalMaterial = true;
+		TraceParams.bTraceComplex = true;
+		TraceParams.bReturnPhysicalMaterial = true;
 
 		// Particle "Target" parameter
-		FVector TracerEndPoint = TraceEnd;
+		FVector TracerEndPoint = TraceTo;
 		EPhysicalSurface SurfaceType = SurfaceType_Default;
 
 		FHitResult Hit;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams)) {
+		if (GetWorld()->LineTraceSingleByChannel(Hit, TraceFrom, TraceTo, COLLISION_WEAPON, TraceParams)) {
 			// Blocking hit
 
 			AActor* HitActor = Hit.GetActor();
@@ -82,7 +81,7 @@ void ATPSWeapon::Fire()
 			float ActualDamage = BaseDamage;
 			if (SurfaceType == SURFACE_FLESHVULNERABLE)
 			{
-				ActualDamage *= 4.0f;
+				ActualDamage *= 5.0f;
 			}
 
 			UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, MyOwner->GetInstigatorController(), MyOwner, DamageType);
@@ -95,57 +94,14 @@ void ATPSWeapon::Fire()
 		// Weapon Debug Line
 		if (DebugWeaponDrawing > 0)
 		{
-			DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, 1.0f, 0, 1.0f);
+			DrawDebugLine(GetWorld(), TraceFrom, TraceTo, FColor::Blue, false, 1.0f, 0, 1.0f);
 		}
 
 		FireEffects(TracerEndPoint);
 
 		LastTimeFired = GetWorld()->TimeSeconds;
 
-		CurrentChamberAmmo--;
 	}
-}
-
-bool ATPSWeapon::CheckAmmo()
-{
-	if (bIsReloading) return false;
-	if (!HasAmmo())
-	{
-		if (CanReloadAmmo())
-		{
-			Reload();
-			return false;
-		}
-		else
-		{
-			//No ammo
-			StopFire();
-			return false;
-		}
-	}
-	return true;
-}
-
-bool ATPSWeapon::HasAmmo() const
-{
-	return CurrentChamberAmmo > 0 && TotalAmmo > 0;
-}
-
-bool ATPSWeapon::CanReloadAmmo() const
-{
-	return TotalAmmo > 0 && CurrentChamberAmmo < MaxChamberAmmo;
-}
-
-void ATPSWeapon::Reload()
-{
-	if (bIsReloading) return;
-	bIsReloading = true;
-	int32 oldammo = CurrentChamberAmmo;
-	int32 newammo = MaxChamberAmmo - oldammo;
-	CurrentChamberAmmo = TotalAmmo >= newammo ? newammo : TotalAmmo;
-	TotalAmmo -= newammo;
-
-	GetWorldTimerManager().SetTimer(TH_Reloading, [this]() {bIsReloading = false; }, TimeToReload, false, TimeToReload);
 }
 
 void ATPSWeapon::StartFire()
@@ -163,8 +119,7 @@ void ATPSWeapon::FireEffects(FVector TraceEnd)
 {
 	// Muzzle flash effect
 	if (MuzzleFlashEffect) {
-		FVector MuzzleSocketLocation = MeshComponent->GetSocketLocation(MuzzleSocketName);
-
+		
 		UGameplayStatics::SpawnEmitterAttached(MuzzleFlashEffect, MeshComponent, MuzzleSocketName);
 	}
 

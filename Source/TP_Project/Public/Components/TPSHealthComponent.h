@@ -7,7 +7,7 @@
 #include "TPSHealthComponent.generated.h"
 
 // On Health Changed Event
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignuature, UTPSHealthComponent*, HealthComp, float, Health, float, HealthDelta, const class UDamageType*, DamageType, class AController*, InstigatedBy, AActor*, DamageCauser);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature, UTPSHealthComponent*, OwningHealthComp, float, Health, float, HealthDelta, const class UDamageType*, DamageType, class AController*, InstigatedBy, AActor*, DamageCauser);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TP_PROJECT_API UTPSHealthComponent : public UActorComponent
@@ -34,7 +34,7 @@ protected:
 	float DefaultHealth;
 
 	UFUNCTION()
-	void HandleDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	void HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 public:
 
@@ -44,7 +44,7 @@ public:
 	void Heal(float Amount);
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
-	FOnHealthChangedSignuature OnHealthChanged;
+	FOnHealthChangedSignature OnHealthChanged;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "HealthComponent")
 	static bool IsFriendly(AActor* ActorA, AActor* ActorB);
