@@ -45,10 +45,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player")
 	bool bIsAiming;
 
-	void BeginAiming();
-
-	void StopAiming();
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player")
 	bool bIsSprinting;
 
@@ -93,4 +89,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StopFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void BeginAiming();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StopAiming();
 };

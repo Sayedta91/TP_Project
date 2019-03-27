@@ -32,7 +32,7 @@ ATPCharacter::ATPCharacter()
 
 	AimingFOV = 65.0f;
 	ZoomInterpSpeed = 20.0f;
-
+ 
 	WeaponSocketName = "WeaponSocket";
 }
 
@@ -42,6 +42,7 @@ void ATPCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	DefaultFOV = CameraComp->FieldOfView;
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ATPCharacter::OnHealthChanged);
 
 	// Spawn Weapon
 	FActorSpawnParameters SpawnParams;
@@ -53,9 +54,6 @@ void ATPCharacter::BeginPlay()
 		EquippedWeapon->SetOwner(this);
 		EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
 	}
-	
-	HealthComponent->OnHealthChanged.AddDynamic(this, &ATPCharacter::OnHealthChanged);
-	
 }
 
 void ATPCharacter::MoveForward(float Value)
@@ -72,11 +70,13 @@ void ATPCharacter::MoveRight(float Value)
 	if (!bIsSprinting)
 	{
 		AddMovementInput(GetActorRightVector() * Value);
+		GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed = 500;
 	}
 }
 
 void ATPCharacter::BeginCrouch()
 {
+	bIsSprinting = false;
 	Crouch();
 }
 
@@ -100,7 +100,8 @@ void ATPCharacter::StopAiming()
 void ATPCharacter::BeginSprinting()
 {
 	bIsSprinting = true;
-	GetCharacterMovement()->MaxWalkSpeed = 750.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 800.0f;
+	UnCrouch();
 }
 
 void ATPCharacter::StopSprinting()
@@ -139,6 +140,8 @@ void ATPCharacter::OnHealthChanged(UTPSHealthComponent* OwningHealthComp, float 
 		DetachFromControllerPendingDestroy();
 		SetLifeSpan(10.0f);
 
+		UE_LOG(LogTemp, Log, TEXT("Player Health Changed: %s"), *FString::SanitizeFloat(Health));
+
 		EquippedWeapon->StopFire();
 	}
 }
@@ -147,10 +150,16 @@ void ATPCharacter::OnHealthChanged(UTPSHealthComponent* OwningHealthComp, float 
 void ATPCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	float TargetFOV = bIsAiming ? AimingFOV : DefaultFOV;
-	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ZoomInterpSpeed);
-	CameraComp->SetFieldOfView(NewFOV);
+	if (bIsSprinting)
+	{
+		CameraComp->SetFieldOfView(DefaultFOV);
+	}
+	else
+	{
+		float TargetFOV = bIsAiming ? AimingFOV : DefaultFOV;
+		float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ZoomInterpSpeed);
+		CameraComp->SetFieldOfView(NewFOV);
+	}
 }
 
 // Called to bind functionality to input

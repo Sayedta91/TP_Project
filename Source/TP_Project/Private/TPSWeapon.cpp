@@ -30,7 +30,6 @@ ATPSWeapon::ATPSWeapon()
 	BaseDamage = 20.0f;
 	RateOfFire = 600;
 	BulletSpread = 2.0f;
-
 }
 
 void ATPSWeapon::BeginPlay()
@@ -121,6 +120,7 @@ void ATPSWeapon::FireEffects(FVector TraceEnd)
 	if (MuzzleFlashEffect) {
 		
 		UGameplayStatics::SpawnEmitterAttached(MuzzleFlashEffect, MeshComponent, MuzzleSocketName);
+		UGameplayStatics::SpawnSoundAttached(MuzzleFlashSound, MeshComponent, MuzzleSocketName);
 	}
 
 	// Projectile Tracer Effect
@@ -170,7 +170,7 @@ void ATPSWeapon::PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactP
 		ShotDirection.Normalize();
 
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ImpactSound, ImpactPoint, ShotDirection.Rotation());
 	}
 }
-
 
