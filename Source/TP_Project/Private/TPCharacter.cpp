@@ -15,13 +15,13 @@
 // Sets default values
 ATPCharacter::ATPCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComponent = CreateAbstractDefaultSubobject<USpringArmComponent>(TEXT("SpringArm Component"));
 	SpringArmComponent->bUsePawnControlRotation = true;
 	SpringArmComponent->SetupAttachment(RootComponent);
-	
+
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
@@ -32,7 +32,10 @@ ATPCharacter::ATPCharacter()
 
 	AimingFOV = 65.0f;
 	ZoomInterpSpeed = 20.0f;
- 
+
+	AimWalkSpeed = 250.0f;
+	SprintWalkSpeed = 900.0f;
+
 	WeaponSocketName = "WeaponSocket";
 }
 
@@ -40,7 +43,7 @@ ATPCharacter::ATPCharacter()
 void ATPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	DefaultFOV = CameraComp->FieldOfView;
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ATPCharacter::OnHealthChanged);
 
@@ -70,7 +73,10 @@ void ATPCharacter::MoveRight(float Value)
 	if (!bIsSprinting)
 	{
 		AddMovementInput(GetActorRightVector() * Value);
-		GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed = 500;
+		if (!bIsAiming)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed = 500;
+		}
 	}
 }
 
@@ -88,33 +94,37 @@ void ATPCharacter::EndCrouch()
 void ATPCharacter::BeginAiming()
 {
 	bIsAiming = true;
-	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed * 0.5f;
+	StopSprinting();
+	GetCharacterMovement()->MaxWalkSpeed = AimWalkSpeed;
 }
 
 void ATPCharacter::StopAiming()
 {
 	bIsAiming = false;
-	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed / 0.5f;
 }
 
 void ATPCharacter::BeginSprinting()
 {
-	bIsSprinting = true;
-	GetCharacterMovement()->MaxWalkSpeed = 800.0f;
 	UnCrouch();
+	bIsAiming = false;
+	bIsSprinting = true;
+	GetCharacterMovement()->MaxWalkSpeed = SprintWalkSpeed;
+	StopFire();
 }
 
 void ATPCharacter::StopSprinting()
 {
 	bIsSprinting = false;
-	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 }
 
 void ATPCharacter::StartFire()
 {
 	if (EquippedWeapon)
 	{
-		EquippedWeapon->StartFire();
+		if (!bIsSprinting)
+		{
+			EquippedWeapon->StartFire();
+		}
 	}
 }
 
@@ -133,18 +143,18 @@ void ATPCharacter::OnHealthChanged(UTPSHealthComponent* OwningHealthComp, float 
 	{
 		// Can die
 		bDied = true;
-		
+
 		GetMovementComponent()->StopMovementImmediately();
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		DetachFromControllerPendingDestroy();
 		SetLifeSpan(10.0f);
 
-		UE_LOG(LogTemp, Log, TEXT("Player Health Changed: %s"), *FString::SanitizeFloat(Health));
 
 		EquippedWeapon->StopFire();
 	}
 }
+
 
 // Called every frame
 void ATPCharacter::Tick(float DeltaTime)

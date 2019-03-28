@@ -27,7 +27,7 @@ protected:
 
 	bool bIsDead;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Health Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health Component")
 	float Health;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health Component")

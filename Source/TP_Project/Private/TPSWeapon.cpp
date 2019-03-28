@@ -40,7 +40,6 @@ void ATPSWeapon::BeginPlay()
 
 void ATPSWeapon::Fire()
 {
-
 	// Trace the world from pawn eyes to location of crosshair (center of screen)
 
 	AActor* MyOwner = GetOwner();

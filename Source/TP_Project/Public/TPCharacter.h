@@ -45,10 +45,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player")
 	bool bIsAiming;
 
+	float AimWalkSpeed;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player")
 	bool bIsSprinting;
 
 	void BeginSprinting();
+
+	float SprintWalkSpeed;
 
 	void StopSprinting();
 
