@@ -121,7 +121,7 @@ void ATPCharacter::StartFire()
 {
 	if (EquippedWeapon)
 	{
-		if (!bIsSprinting)
+		if (!bIsSprinting && !GetCharacterMovement()->IsFalling())
 		{
 			EquippedWeapon->StartFire();
 		}
@@ -136,7 +136,7 @@ void ATPCharacter::StopFire()
 	}
 }
 
-void ATPCharacter::OnHealthChanged(UTPSHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType,
+void ATPCharacter::OnHealthChanged(UTPSHealthComponent* OwningHealthComponent, float Health, float HealthDelta, const class UDamageType* DamageType,
 	class AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (Health <= 0.0f && !bDied)
@@ -154,7 +154,6 @@ void ATPCharacter::OnHealthChanged(UTPSHealthComponent* OwningHealthComp, float 
 		EquippedWeapon->StopFire();
 	}
 }
-
 
 // Called every frame
 void ATPCharacter::Tick(float DeltaTime)

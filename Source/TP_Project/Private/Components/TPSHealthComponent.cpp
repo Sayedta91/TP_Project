@@ -40,7 +40,7 @@ void UTPSHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damag
 
 	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
 
-	if (bIsDead)
+	if (bIsDead && InstigatedBy)
 	{
 		ATPSGameMode* GM = Cast<ATPSGameMode>(GetWorld()->GetAuthGameMode());
 		if (GM)

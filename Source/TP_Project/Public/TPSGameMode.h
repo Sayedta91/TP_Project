@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "TPSGameMode.generated.h"
 
+enum class EWaveState : uint8;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorKilled, AActor*, VictimActor, AActor*, KillerActor, AController*, KillerController);
 
@@ -50,6 +51,8 @@ protected:
 	void CheckPlayerState();
 
 	void GameOver();
+
+	void SetWaveState(EWaveState NewState);
 
 public:
 

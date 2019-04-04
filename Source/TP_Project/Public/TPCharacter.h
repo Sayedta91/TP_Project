@@ -74,7 +74,7 @@ protected:
 	FName WeaponSocketName;
 
 	UFUNCTION()
-	void OnHealthChanged(UTPSHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	void OnHealthChanged(UTPSHealthComponent* OwningHealthComponent, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	UPROPERTY(BlueprintReadOnly, Category = "Player")
 	bool bDied;

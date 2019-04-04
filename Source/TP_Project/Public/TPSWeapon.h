@@ -24,6 +24,13 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	/* Get pawn owner */
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	class ATPCharacter* GetPawnOwner() const;
+
+	UPROPERTY(Transient)
+	class ATPCharacter* MyPawn;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USkeletalMeshComponent* MeshComponent;
 
@@ -85,6 +92,14 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FString WeaponName;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	UAnimMontage* PlayerReloadAnim;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	UAnimMontage* WeaponReloadAnim;
+
+	float PlayReloadAnimation(UAnimMontage* Animation, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 
 public:	
 

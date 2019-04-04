@@ -5,12 +5,13 @@
 #include "Engine/World.h"
 #include "TPSHealthComponent.h"
 #include "TPSPlayerState.h"
+#include "TPSGameState.h"
 
 
 ATPSGameMode::ATPSGameMode()
 {
 	TimeBetweenWaves = 2.0f;
-
+	GameStateClass = ATPSGameState::StaticClass();
 	PlayerStateClass = ATPSGameMode::StaticClass();
 
 	PrimaryActorTick.bCanEverTick = true;
@@ -24,11 +25,21 @@ void ATPSGameMode::StartWave()
 	BotsToSpawn = 2 * WaveCount;
 
 	GetWorldTimerManager().SetTimer(TH_BotSpawn, this, &ATPSGameMode::SpawnBotTimerElapsed, 1.0f, true, 0.0f);
+
+	SetWaveState(EWaveState::WaveInProgress);
+}
+
+void ATPSGameMode::EndWave()
+{
+	GetWorldTimerManager().ClearTimer(TH_BotSpawn);
+	SetWaveState(EWaveState::WaitingToComplete);
 }
 
 void ATPSGameMode::PrepareNextWave()
 {
 	GetWorldTimerManager().SetTimer(TH_NextWaveStart, this, &ATPSGameMode::StartWave, TimeBetweenWaves, false);
+	SetWaveState(EWaveState::WaitingToStart);
+
 }
 
 void ATPSGameMode::CheckWaveState()
@@ -60,6 +71,7 @@ void ATPSGameMode::CheckWaveState()
 
 	if (!bIsAnyBotAlive)
 	{
+		SetWaveState(EWaveState::WaveComplete);
 		PrepareNextWave();
 	}
 }
@@ -88,12 +100,16 @@ void ATPSGameMode::CheckPlayerState()
 void ATPSGameMode::GameOver()
 {
 	EndWave();
-
+	SetWaveState(EWaveState::GameOver);
 }
 
-void ATPSGameMode::EndWave()
+void ATPSGameMode::SetWaveState(EWaveState NewState)
 {
-	GetWorldTimerManager().ClearTimer(TH_BotSpawn);
+	ATPSGameState* GS = GetGameState<ATPSGameState>();
+	if (ensure(GS))
+	{
+		GS->SetWaveState(NewState);
+	}
 }
 
 void ATPSGameMode::StartPlay()

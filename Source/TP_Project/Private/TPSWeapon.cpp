@@ -9,6 +9,7 @@
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "TimerManager.h"
+#include "TPCharacter.h"
 #include "TP_Project.h"
 
 static int32 DebugWeaponDrawing = 0;
@@ -36,6 +37,11 @@ void ATPSWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	TimeBetweenShots = 60 / RateOfFire;
+}
+
+ATPCharacter * ATPSWeapon::GetPawnOwner() const
+{
+	return MyPawn;
 }
 
 void ATPSWeapon::Fire()
@@ -100,6 +106,20 @@ void ATPSWeapon::Fire()
 		LastTimeFired = GetWorld()->TimeSeconds;
 
 	}
+}
+
+float ATPSWeapon::PlayReloadAnimation(UAnimMontage * Animation, float InPlayRate, FName StartSectionName)
+{
+	float Duration = 0.0f;
+	if (MyPawn)
+	{
+		if (Animation)
+		{
+			Duration = MyPawn->PlayAnimMontage(Animation, InPlayRate, StartSectionName);
+		}
+	}
+
+	return Duration;
 }
 
 void ATPSWeapon::StartFire()
