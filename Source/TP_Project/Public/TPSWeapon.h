@@ -87,9 +87,6 @@ protected:
 
 	float TimeBetweenShots;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	bool bIsReloading;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FString WeaponName;
 
@@ -101,7 +98,36 @@ protected:
 
 	float PlayReloadAnimation(UAnimMontage* Animation, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 
+	FTimerHandle TimerHandle_Reloading;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (ToolTip = "Number of bullets available to shoot"))
+	int32 TotalAmmo = 1000;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (ToolTip = "Max number of bullets in the chamber"))
+	int32 MaxChamberAmmo = 10;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (ToolTip = "Current number of bullets in the chamber"))
+	int32 CurrentChamberAmmo = 10;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (ToolTip = "Flag to know when the weapon is in reloading time"))
+	bool IsReloading = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (ToolTip = "Time in seconds to reload the weapon"))
+	float TimeToReload = 0.9f;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual bool HasAmmo() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual bool CanReloadAmmo() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void Reload();
+
 public:	
+
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual bool CheckAmmo();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void StartFire();
