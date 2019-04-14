@@ -101,6 +101,7 @@ void ATPCharacter::BeginAiming()
 void ATPCharacter::StopAiming()
 {
 	bIsAiming = false;
+	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed = 500;
 }
 
 void ATPCharacter::BeginSprinting()
@@ -148,10 +149,10 @@ void ATPCharacter::OnHealthChanged(UTPSHealthComponent* OwningHealthComponent, f
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		DetachFromControllerPendingDestroy();
-		SetLifeSpan(10.0f);
-
+		SetLifeSpan(3.0f);
 
 		EquippedWeapon->StopFire();
+		EquippedWeapon->SetLifeSpan(3.0f);
 	}
 }
 

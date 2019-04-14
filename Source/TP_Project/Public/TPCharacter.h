@@ -50,11 +50,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player")
 	bool bIsSprinting;
 
-	void BeginSprinting();
-
 	float SprintWalkSpeed;
-
-	void StopSprinting();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
 	float AimingFOV;
@@ -99,4 +95,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StopAiming();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void BeginSprinting();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StopSprinting();
+
 };
