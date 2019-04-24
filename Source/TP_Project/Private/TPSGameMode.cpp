@@ -10,7 +10,7 @@
 
 ATPSGameMode::ATPSGameMode()
 {
-	TimeBetweenWaves = 2.0f;
+	TimeBetweenWaves = 5.0f;
 	GameStateClass = ATPSGameState::StaticClass();
 	PlayerStateClass = ATPSGameMode::StaticClass();
 
@@ -22,7 +22,7 @@ void ATPSGameMode::StartWave()
 {
 	WaveCount++;
 
-	BotsToSpawn = 2 * WaveCount;
+	BotsToSpawn = 1 * WaveCount;
 
 	GetWorldTimerManager().SetTimer(TH_BotSpawn, this, &ATPSGameMode::SpawnBotTimerElapsed, 1.0f, true, 0.0f);
 

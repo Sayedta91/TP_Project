@@ -149,10 +149,10 @@ void ATPCharacter::OnHealthChanged(UTPSHealthComponent* OwningHealthComponent, f
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		DetachFromControllerPendingDestroy();
-		SetLifeSpan(3.0f);
+		SetLifeSpan(2.0f);
 
 		EquippedWeapon->StopFire();
-		EquippedWeapon->SetLifeSpan(3.0f);
+		EquippedWeapon->SetLifeSpan(2.0f);
 	}
 }
 

@@ -34,6 +34,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USkeletalMeshComponent* MeshComponent;
 
+	/************************************************************************/
+	/* Simulation & FX                                                      */
+	/************************************************************************/
+
 	void FireEffects(FVector TraceEnd);
 
 	void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
@@ -68,6 +72,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UCameraShake> FireCamShake;
 
+
+	/************************************************************************/
+	/* Fire & Damage Handling                                               */
+	/************************************************************************/
+
 	void Fire();
 
 	FTimerHandle TH_TimeBetweenShots;
@@ -87,6 +96,10 @@ protected:
 
 	float TimeBetweenShots;
 
+	/************************************************************************/
+	/* Ammo & Reloading                                                     */
+	/************************************************************************/
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FString WeaponName;
 
@@ -100,19 +113,19 @@ protected:
 
 	FTimerHandle TimerHandle_Reloading;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (ToolTip = "Number of bullets available to shoot"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	int32 TotalAmmo = 1000;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (ToolTip = "Max number of bullets in the chamber"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	int32 MaxChamberAmmo = 10;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (ToolTip = "Current number of bullets in the chamber"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	int32 CurrentChamberAmmo = 10;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (ToolTip = "Flag to know when the weapon is in reloading time"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	bool IsReloading = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (ToolTip = "Time in seconds to reload the weapon"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float TimeToReload = 0.9f;
 
 	UFUNCTION(BlueprintCallable, Category = "Weapons")

@@ -24,11 +24,6 @@ protected:
 	// Number of bots to spawn in current wave
 	int32 BotsToSpawn;
 
-	int32 WaveCount;
-
-	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
-	float TimeBetweenWaves;
-
 protected:
 
 	// Allow BP to spawn a single bot
@@ -53,6 +48,14 @@ protected:
 	void GameOver();
 
 	void SetWaveState(EWaveState NewState);
+
+private:
+
+	UPROPERTY(EditAnywhere, Category = "GameMode")
+	float TimeBetweenWaves;
+
+	UPROPERTY(EditAnywhere, Category = "GameMode")
+	int32 WaveCount;
 
 public:
 
