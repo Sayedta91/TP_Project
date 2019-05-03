@@ -123,24 +123,23 @@ protected:
 	int32 CurrentChamberAmmo = 10;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	bool IsReloading = false;
+	bool bIsReloading = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float TimeToReload = 0.9f;
 
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual bool HasAmmo() const;
+	virtual bool HasAmmo() const { return CurrentChamberAmmo > 0 && TotalAmmo > 0; }
 
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual bool CanReloadAmmo() const;
+	virtual bool CanReloadAmmo() const { return TotalAmmo > 0 && CurrentChamberAmmo < MaxChamberAmmo; }
+
+	virtual bool CheckAmmo();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	virtual void Reload();
 
 public:	
-
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual bool CheckAmmo();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void StartFire();

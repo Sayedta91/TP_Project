@@ -126,7 +126,7 @@ float ATPSWeapon::PlayReloadAnimation(UAnimMontage * Animation, float InPlayRate
 
 bool ATPSWeapon::CheckAmmo()
 {
-	if (IsReloading) return false;
+	if (bIsReloading) return false;
 
 	if (!HasAmmo())
 	{
@@ -145,20 +145,10 @@ bool ATPSWeapon::CheckAmmo()
 	return true;
 }
 
-bool ATPSWeapon::HasAmmo() const
-{
-	return CurrentChamberAmmo > 0 && TotalAmmo > 0;
-}
-
-bool ATPSWeapon::CanReloadAmmo() const
-{
-	return TotalAmmo > 0 && CurrentChamberAmmo < MaxChamberAmmo;
-}
-
 void ATPSWeapon::Reload()
 {
-	if (IsReloading) return;
-	IsReloading = true;
+	if (bIsReloading) return;
+	bIsReloading = true;
 	int32 oldammo = CurrentChamberAmmo;
 	int32 newammo = MaxChamberAmmo - oldammo;
 	CurrentChamberAmmo = TotalAmmo >= newammo ? newammo : TotalAmmo;
@@ -171,7 +161,7 @@ void ATPSWeapon::Reload()
 
 	GetWorldTimerManager().SetTimer(
 		TimerHandle_Reloading, [this]() {
-		IsReloading = false; }, TimeToReload, false, TimeToReload);
+		bIsReloading = false; }, TimeToReload, false, TimeToReload);
 }
 
 void ATPSWeapon::StartFire()
